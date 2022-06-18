@@ -63,7 +63,7 @@ def crawl(keywords):
 
         i = 2
         pg_cnt = 1
-        while len(links) + len(texts) < 1500:
+        while len(links) + len(texts) < 5000:
             system_log(f'Doing {keyword} Page {pg_cnt} : Total Found',end=" ")
             tables = d.find_elements(By.CSS_SELECTOR,'#container > div > section.center_content > div.inner > div.integrate_cont.sch_result.result_all > ul > li')
             for t in tables:
