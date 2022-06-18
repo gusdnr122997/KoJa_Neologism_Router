@@ -1,3 +1,5 @@
+import kill # KILL ALL CHROMES
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -61,8 +63,8 @@ def crawl(keywords):
 
         i = 2
         pg_cnt = 1
-        while len(links) + len(texts) < 2500:
-            system_log(f'Doing Page {pg_cnt} : Total Found',end=" ")
+        while len(links) + len(texts) < 1500:
+            system_log(f'Doing {keyword} Page {pg_cnt} : Total Found',end=" ")
             tables = d.find_elements(By.CSS_SELECTOR,'#container > div > section.center_content > div.inner > div.integrate_cont.sch_result.result_all > ul > li')
             for t in tables:
                 a = t.find_element(By.CSS_SELECTOR, 'a')
@@ -70,15 +72,20 @@ def crawl(keywords):
                 # title_text = a.text
                 p_text = p.text
 
+                if len(p_text) < 20:
+                    continue
+
                 if p_text[-3:] != '...':
-                    if len(p_text) < 20:
-                        continue
                     texts.append(p_text)
                     with open(text_file, 'a', encoding='utf-8') as f:
                         f.writelines(p_text+'\n')
                 else:
                     href = a.get_attribute('href')
-                    links.append(href)
+                    status, link_text = B.get_text(href,'DC')
+                    if link_text is not None:
+                        texts.append(link_text)
+                    else:
+                        links.append(href)
             print(len(links),len(texts))
             try:
                 pg_cnt += 1
@@ -107,4 +114,4 @@ def crawl(keywords):
 
 if __name__ == '__main__':
     crawl(keywords)
-    B.get_text(keywords,'DC')
+    # B.get_text(keywords,'DC')

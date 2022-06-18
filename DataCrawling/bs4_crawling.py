@@ -1,8 +1,10 @@
+import kill
+
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 import requests
 from time import sleep
-import glob
+import glob, os
 
 import random
 
@@ -33,7 +35,32 @@ def parse_url(url):
     return new_url, url_parsed.query
 
 
-def get_text(keywords,platform='None'):
+def get_text(url,platform):
+    texts = []
+    new_url, p = parse_url(url)
+
+    res = requests.get(new_url, params=p, headers=headers)
+    print(res.status_code)
+    print(res.text[:200])
+    if res.status_code != 200:
+        return (res.status_code,None)
+    result_status.append(res.status_code)
+    result_text.append(res.text)
+
+    soup = BeautifulSoup(res.text, 'html.parser')
+    if platform == 'DC':
+        selected_text = soup.select_one('div.write_div')
+    elif platform == 'PANN':
+        selected_text = soup.select_one('div#contentArea')
+
+    if selected_text is None:
+        return (200,None)
+    else:
+        texts.append(selected_text.text)
+        return (200,selected_text.text)
+
+
+def get_texts(keywords, platform):
     for keyword in keywords:
         urls = read_links(f'links/{keyword}_links.txt')
         file_name = f'rawdata/{keyword}_{platform}.txt'
@@ -44,11 +71,14 @@ def get_text(keywords,platform='None'):
                     sleep(random.randint(1,10))
                 new_url,p = parse_url(url)
 
-                res = requests.get(new_url,params=p,headers=headers)
+                res = requests.get(new_url, params=p, headers=headers)
                 print(res.status_code)
-                print(res.text)
+                print(res.text[:200])
                 if res.status_code != 200:
                     continue
+                if res.text == '':
+                    print("NEXT TIME...",keyword)
+                    return
                 result_status.append(res.status_code)
                 result_text.append(res.text)
 
@@ -63,3 +93,4 @@ def get_text(keywords,platform='None'):
                 else:
                     texts.append(selected_text.text)
                     f.writelines(selected_text.text+'\n')
+        os.remove(file_name)
