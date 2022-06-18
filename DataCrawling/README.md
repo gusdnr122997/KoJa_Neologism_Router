@@ -1,7 +1,5 @@
 # COMMUNITY PLATFORM 검색어 크롤링 Task
 
-****
-
 **실행환경**
 * Windows 10
 * Python 3.9
