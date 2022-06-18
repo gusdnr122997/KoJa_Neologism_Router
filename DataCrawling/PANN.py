@@ -46,7 +46,7 @@ def crawl(keywords):
         i = 2
         num = 1
         tries = 0
-        while len(links) + len(texts) < 300:
+        while len(links) + len(texts) < 5000:
             if tries == 20:
                 break
             tables = d.find_elements(By.CSS_SELECTOR,'#container > div.content.sub > div.srcharea > div.srch_list.section > ul > li')
