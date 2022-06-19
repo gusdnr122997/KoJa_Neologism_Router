@@ -1,46 +1,32 @@
-# COMMUNITY PLATFORM 검색어 크롤링 Task
+# FastText Embedding And MUSE Bilingual Word Embeddings Alignment
 
 **실행환경**
-* Windows 10
-* Python 3.9
-  * Anaconda 사용 권장
-* Python Libraries:
-  * Selenium
-  * BeautifulSoup
-  * twitter api
+* Google Colab Pro
+* [FastText](https://github.com/facebookresearch/fasttext)
+* [MUSE](https://github.com/facebookresearch/MUSE)
+* Flask
 
-**개발완료된 Platform 목록**
-* 한국
-  * 디시인사이드 (DC)
-  * 네이트판 (PANN)
-* 일본
-  * Tanuki (tanuki)
-  * Twitter (twitter)
-  
+**Pre-Trained Model**
+* [wiki.ko.bin](https://drive.google.com/file/d/1FQ0ooFyx2uMQR1cz3Mxl-YIn7L97wIDz/view?usp=sharing)
+* [ja_model.bin](https://drive.google.com/file/d/1ED7o_h3KO3fKcDSRHXiuAFL3fxEM5z78/view) # Created by [lounlee](https://github.com/lounlee/fasttext_jpn_model_neologd)
+
+**결과물**
+* [vectors-ja.txt](https://drive.google.com/file/d/1MM3iES-v0sqfFIjbbwuPY9BukpQnDNOO/view?usp=sharing)
+* [vectors-ko.txt](https://drive.google.com/file/d/1qWiPm5GTqVdlEKpDxunuSY2CLDAZASHK/view?usp=sharing)
+
 **폴더 설명**
-* links : 키워드 단어의 links.txt를 모아놓은 폴더
-  * BeautifulSoup Parsing을 위한 폴더
-* rawdata : 키워드 단어에 대한 문장을 긁어온 _Platform.txt 폴더
-  * 결과물(Result)
+* ipynb: 구글 colab에서 실행할 주피터 노트북 파일 존재
+* muse_dict_ko-ja: MUSE alignment를 위한 Dictionary Files
+* vecs : 결과물을 저장하는 Directory
 
 **파일 설명**
-* Platform.py : 신조어목록.txt를 대상으로 Platform에서 데이터 크롤링 시작
-  * ex) DC.py > DC에서 신조어목록 단어들이 포함된 내용 가져오기
-* twitter_crawling.py : 트위터 API를 통한 Crawling이지만, API Key를 발급받아야만 사용할 수 있다.
-* 신조어목록.txt : 검색 대상 신조어를 한 열로 나열
-* bs4_crawling : links 폴더의 파일들을 대상으로 해당 Link의 HTML을 파싱 후 rawdata에 존재하는 해당 Keyword 문장 append
-* check_data_length.py : 각 Keyword의 문장데이터 개수 카운팅
-* chromedriver.exe : Selenium 모듈에서 사용할 크롬드라이버
-  * 주의! 크롬이 설치되어 있어야 하며 크롬 버전에 알맞는 크롬드라이버를 다운로드 받아야한다.
-  * 크롬드라이버 다운로드 사이트: https://chromedriver.chromium.org/downloads
+* ft_vecs.py: vecs 폴더에 있는  워드 임베딩 파일을 읽고 nearest neighbor + similarity 기능을 REST API를 통해 제공
 
-
-**실행순서**
-1. 신조어목록.txt에 크롤링할 Keyword를 추가한다 (하드웨어 고려해서 키워드 개수 제한)
-2. 원하는 커뮤니티 플랫폼 파일을 실행한다
-3. rawdata의 결과물을 확인한다
+**실행**
+* 학습절차: ipynb/GENSIM+FASTTEXT+MUSE.ipynb 파일을 순차적으로 실행
+  * git clone MUSE 후 muse_dict_ko-ja 폴더에 있는 파일들을 꼭 MUSE 디렉터리에 넣어야 함! 자세한 내용은 주피터 노트북 파일 참고
+* ft_vecs.py를 실행하면 서비스 WEB에서 신조어 유사도 정보를 가져올 수 있다. 
 
 ****
 Developed By:
-  * 전현욱: Logic 설계, BS4 프로세스 개발
-  * 김우영: DC,PANN,Tanuki 프로세스 개발
+  * 전현욱

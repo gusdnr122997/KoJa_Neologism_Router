@@ -3,10 +3,19 @@ from models import *
 
 import random
 
-import os
+import os, datetime, json, requests
 
 app = Flask(__name__)
 searchkey = None
+
+def make_api_form(word,country,num=10):
+    json_format = {
+        'time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'word': word,
+        'country': country,
+        'num': num
+    }
+    return json_format
 
 @app.route('/',methods=['GET','POST'])
 def main():
@@ -93,7 +102,44 @@ def result():
             return render_template('result.html', searchkey=searchkey, username=username)
         else:
             meanings = (found_word[0].meaning,found_word[0].meaning_jp)
-            return render_template('result.html',searchkey=searchkey,meanings=meanings, username=username, found_word=found_word)
+            r_result = requests.post(
+                url='http://127.0.0.1:8080/get_nn',
+                json=make_api_form(found_word[0].word,found_word[0].language_code,50)
+            )
+            similar_words = {
+                'kwords':[],
+                'jwords':[]
+            }
+            if r_result.status_code == 200:
+                r_result_content = json.loads(r_result.content)
+                if r_result_content['result_k'] is not False:
+                    if found_word[0].language_code == 1:
+                        for score, simword in r_result_content['result_k'][:10]:
+                            if score >= 100:
+                                continue
+                            similar_words['kwords'].append((simword, score))
+                    else:
+                        for score, simword in r_result_content['result_k']:
+                            if score >= 100:
+                                continue
+                            if simword in kwords:
+                                if score > 55:
+                                    similar_words['kwords'].append((simword,score))
+                if r_result_content['result_j'] is not False:
+                    if found_word[0].language_code == 2:
+                        for score, simword in r_result_content['result_j'][:10]:
+                            if score >= 100:
+                                continue
+                            similar_words['jwords'].append((simword,score))
+                    else:
+                        for score, simword in r_result_content['result_j']:
+                            if score >= 100:
+                                continue
+                            if simword in jwords:
+                                if score > 55:
+                                    similar_words['jwords'].append((simword,score))
+
+            return render_template('result.html',searchkey=searchkey,meanings=meanings, username=username, found_word=found_word, similar_words=similar_words,kwords=kwords,jwords=jwords)
 
 @app.route('/words',methods=['GET'])
 def words():
@@ -159,6 +205,8 @@ def quiz():
 @app.route('/new_word', methods=['POST'])
 def new_word():
     usercode = session.get('user_code', None)
+    if not usercode:
+        return redirect('/login')
     if request.method == 'POST':
         searchkey = session.get('searchkey',None)
         print(searchkey)
@@ -183,6 +231,8 @@ def new_word():
 @app.route('/del_word', methods=['POST'])
 def del_word():
     usercode = session.get('user_code', None)
+    if not usercode:
+        return redirect('/login')
     if request.method == "POST":
         wc = int(list(request.form.items())[0][0])
         Vocab.query.filter_by(word_code=wc).delete()
@@ -209,5 +259,7 @@ if __name__ == '__main__':
     db.app = app
     db.create_all()
 
+    kwords = [x.word for x in Dic.query.filter_by(language_code=1).all()]
+    jwords = [x.word for x in Dic.query.filter_by(language_code=2).all()]
 
     app.run(host='0.0.0.0',port=80,debug=True)

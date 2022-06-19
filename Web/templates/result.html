@@ -44,6 +44,7 @@
 
 
     <form id="contents" method="POST" action="/new_word">
+      <div class="content">
       <div class="searchResult">
         <div><p><strong>검색 결과</strong></p></div>
         <div class="searchedWord">
@@ -72,17 +73,45 @@
             <button class="addword">단어장에 추가</button>
           </div>
 
-          
-          {% if matching %}
-          <div class="similarity">
-            <p><strong>검색하신 단어와 유사한 단어들</strong></p>
-            <ul id="percent">
-                <a><li>{{m[1]}}, {{m[0]}}</li></a>
+          {% if similar_words['kwords'] %}
+          <div class="similarity" style="float: left; width:50%">
+            {% if found_word[0].language_code == 2 %}
+              <p><strong>{{searchkey}}와 유사한 등록된 한국 신조어</strong></p>
+            {% else %}
+              <p><strong>{{searchkey}}와 같이 사용되는 단어</strong></p>
+            {% endif %}
+            {% for m in similar_words['kwords'] %}
+            <ul>
+                {% if m[0] in kwords %}
+                  <li><a href="/result?searchkey={{m[0]}}">{{m[0]}}</a>: {{m[1]}}%</li>
+                {% else %}
+                  <li><a>{{m[0]}}</a>: {{m[1]}}%</li>
+                {% endif %}
             </ul>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% if similar_words['jwords'] %}
+          <div class="similarity" style="float: right; width:50%">
+            {% if found_word[0].language_code == 1 %}
+              <p><strong>{{searchkey}}와 유사한 등록된 일본 신조어</strong></p>
+            {% else %}
+              <p><strong>{{searchkey}}와 같이 사용되는 단어</strong></p>
+            {% endif %}
+            {% for m in similar_words['jwords'] %}
+            <ul>
+              {% if m[0] in jwords %}
+                <li><a href="/result?searchkey={{m[0]}}">{{m[0]}}</a>: {{m[1]}}%</li>
+              {% else %}
+                <li><a>{{m[0]}}</a>: {{m[1]}}%</li>
+              {% endif %}
+            </ul>
+            {% endfor %}
           </div>
           {% endif %}
         {% endif %}
       </div>
+        </div>
 
     </form>
     

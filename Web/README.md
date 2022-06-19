@@ -6,6 +6,7 @@
   * Anaconda 사용 권장
 * Python Libraries:
   * Flask
+  * Flask-SQLAlchemy
   * SQLite3
   * pywin32
   

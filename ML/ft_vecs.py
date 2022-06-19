@@ -22,7 +22,7 @@ def load_vec(emb_path, nmax=50000):
     return embeddings, id2word, word2id
 
 
-nmax = 2000000  # maximum number of word embeddings to load
+nmax = 500000  # maximum number of word embeddings to load
 src_embeddings, src_id2word, src_word2id = load_vec(src_path, nmax)
 tgt_embeddings, tgt_id2word, tgt_word2id = load_vec(tgt_path, nmax)
 
@@ -61,10 +61,17 @@ def get_sim(word1,word2):
     if score:
         return score
 
-def get_nn(word,k=10):
-    result = get_nn_full(word, src_embeddings, src_id2word, tgt_embeddings, tgt_id2word, K=k)
-    if result:
-        return result
+def get_nn_ko(word,k=10):
+    jresult = get_nn_full(word, src_embeddings, src_id2word, tgt_embeddings, tgt_id2word, K=k)
+    kresult = get_nn_full(word, src_embeddings, src_id2word, src_embeddings, src_id2word, K=k)
+    return (jresult,kresult)
+
+
+def get_nn_ja(word,k=10):
+    kresult = get_nn_full(word, tgt_embeddings, tgt_id2word, src_embeddings, src_id2word, K=k)
+    jresult = get_nn_full(word, tgt_embeddings, tgt_id2word, tgt_embeddings, tgt_id2word, K=k)
+    return (kresult,jresult)
+
 
 from flask import *
 
@@ -72,6 +79,12 @@ app = Flask(__name__)
 
 @app.route('/get_nn',methods=['POST'])
 def get_nn_api():
-    request.form['text']
+    if request.method == 'POST':
+        word, country, num = request.json.get('word'), request.json.get('country'), request.json.get('num')
+        if country == 1:
+            jnn, knn = get_nn_ko(word,num)
+        else:
+            knn, jnn = get_nn_ja(word,num)
+        return jsonify({'word':word,'result_k':knn,'result_j':jnn})
 
-app.run(host='0.0.0.0',port='8080')
+app.run(host='0.0.0.0',port=8080)
