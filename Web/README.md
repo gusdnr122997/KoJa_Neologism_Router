@@ -30,5 +30,5 @@ app.py 실행
 ****
 Developed By:
   * 전현욱: Web 기능 설계
-  * 이사무엘: HTML/CSS 개발, Flaks 개발
+  * 이사무엘: HTML/CSS 개발, Flask 개발
   * 심하영: DB 설계, Flask 개발
